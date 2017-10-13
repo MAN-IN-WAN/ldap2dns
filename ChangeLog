@@ -1,0 +1,170 @@
+# $Id$
+Version 0.5.0-beta (latest)
+* BACKWARD COMPATIBILITY BREAK: DNS TXT records now store their data in the new
+  DNStxt attribute instead of the old DNScname attribute.  You must manually
+  update any DNS TXT records for them to continue working.
+* Fix handling of background daemon mode
+* Add option to run in daemon mode without forking, staying in the foreground
+* Add support for IPv6 AAAA records
+
+Version 0.4.2
+* Add SMF manifest
+* Add manpage
+* Ensure all options get initialized to defaults before any attempts at setting
+  them via configuration, environment, or cmdline args.
+* Allow all cmdline args to be set optionally using environment variables
+* Updated documentation and added plaintext version
+* Add output of TTL on individual records when using BIND outputs
+* Fix FQDN output of SRV records when using BIND outputs
+
+Version 0.4.1 - 2006/10/19
+* Updated scripts/data2ldif.pl to properly handle reverse domains
+* Fixed parser bugs in scripts/data2ldif.pl (Thanks Fleischmann Bonaventura and
+  Adrian Goins)
+* Added missing option -M (Thanks Jason Chambers)
+* Change default record limit to LDAP_NO_LIMIT
+* Tightned up LDAP search scope when calculating the checksum (Thanks Jason
+  Chambers for the bug report)
+* Fixed bug reading the LDAP bind password out of the environment (Thanks Nick
+  Gregory for the bug report)
+* Updated FAQ
+
+Version 0.4.0 - 2006/06/17
++ Corrected segfault when using BIND output with SRV records (Thanks Fred Leitz)
++ Fixed off-by-one string termination problem
++ Fixed a number of possible segfaults if required cmdline options were missing
+  Thanks Steve Ayotte (sayotte.alkaloid.net)
++ Added more verbose LDAP error and sanity checking output
++ Replaced all deprecated LDAP API calls
++ Converted to getopt_long and added double-dash options (--help)
++ Added search timeout and max record count options
++ Added warnings when zero records are returned from searches
+
+Version 0.3.7 - Unreleased.
++ Changed default location of ldap.conf to /etc/ldap.conf
++ Added note on potential security vulns in deprecated/webadmin to README
++ Changed port declarations/format strings from int to unsigned short
+  to match standards
++ Updated doc/README.html
++ Added security audit result patch from Erik Cabetas (erik.cabetas.com)
++ Fixed typo in ldap2dns.spec.in
++ Updated example ldif in doc/ (Thanks Marc Huot)
+
+Version 0.3.6 - 2005/12/16
++ New maintainer: Ben Klang <ben@alkaloid.net>
++ Fixed bug with duplicate OIDs in dns.schema from partially applied patch
++ Renamed schema file to ldap2dns.schema
++ Updated RPM specfile
++ Removed already merged patchfiles
++ Restructured file layout, created doc directory
++ Deprecated unfinished webadmin work.  Will be replaced with Beatnik
++ Deprecated OpenLDAP 2.0 schema support
++ Deprecated djbdns-1.0.5 native LDAP patch (status of patch unknown)
++ Removed old index.html
++ Removed TODO.schema
++ Updated Makefile
++ Modified ldap2dns-conf to behave more like tinydns-conf
++ Altered default behavior (via ldap2dns-conf) to run ldap2dns as non-root
++ Updated FAQ
++ Deprecated askldap.c and askldap.h
++ Created TODO file
++ Added TinyDNS data file import script (scripts/data2ldap.pl)
++ Moved AXFR import script (formerly import.pl) to scripts/axfr2ldap.pl
++ Deprecated export-ldap.pl (Possibly old ldap2dns 0.2->0.3 upgrade script?)
+
+Version 0.3.5 - 2005/11/30
++ Added support for DNS SRV records
+
+Version 0.3.3
+- Removed a bug which caused ldap2dns to etablish more than one connections
+  to the LDAP server.
+
+Version 0.3.2
++ Only patches from Martin Lesser <m-lesser@better-com.de>
+  applied. Nothing from myself.
++ connecting to a ldap-server where the server is given as URI works
+  (both ldap:// [with TLS] and ldaps://)
++ we use location-codes here, so ldap2dns.c was extended to make use of
+  them, this also requires an extension of dns.schema.
+
+Version 0.3.1 
++ ldap2dns now can work together with tinydns. This means that
+  all DNS queries are passed through tinydns directly onto the
+  LDAP backend. This avoids generating a data-file and calling
+  tinydns-data (or restarting BIND).
+  Drawback: Queries are much slower now. I am not sure if this
+  is acceptable on the long run. This is caused by the LDAP-schema 
+  used here, were many objects with strict attribute-value-pair mapping
+  is used. Other schemas, such as the core- and cosine-schema need
+  less LDAP-objects, since they code multiple values into one attribute.
+  Nameservers based on this schema (such as ldapdns 
+  http://nimh.org/code/ldapdns/) can therefore answer much faster.
+
+Version 0.3.0 
++ A new interface for web-administration written compleatly in PHP.
+  Much easier to install that the old mod_perl interface.
+
+Version 0.2.6
++ Password passed with option -w now is invisible to 'ps'.
++ ldap2tinydns-conf now takes a parameter to specify to user under
+  which ldap2dns will be running.
+
+Version 0.2.5
+- Tested with OpenLDAP-2.0.
+- Adopted dns.schema with official numbers.
+
+Version 0.2.4
+- Check for next availabe server in /etc/ldap.conf
+  if one is unavialable.
+- Schema for DNSzone in dns.schema was corrected.
+
+Version 0.2.3 
+- Replaced integer variables for DNSserial, DNSttl etc. by strings
+  to allow better default handling by tinydns-data.
+- ldap2dns now writes logfiles.
+
+Version 0.2.2
+- Tested with djbdns-1.05
+
+- Removed compleatly the possibility to create a binary data.cdb file.
+  Reasons:
+  * It just takes a few milliseconds to create a data.cdb file with 
+    tinydns-data. 
+  * Its much safer to have an ASCII data file handy just in case 
+    something goes wrong.
+  * I am too lazy to adopt ldap2dns for each new version of djbdns.
+  * ldap2dns does not have to be linked statically against any other
+    package.
+
+- Now the output option takes parameters data and/or db instead
+  of numbers.
+
+Version 0.2.1
+- Additional attribute in DNSrrset: DNScipaddr
+  Canonical IP address, which when used instead
+  of DNSipaddr automatically resolves reverse.
+
+- Using Environement Variables LDAP2DNS_UPDATE and
+  LDAP2DNS_OUTPUT for default values used by ldap2dns.
+
+- If started as daemon, does not exit if connection to
+  LDAP server fails but tries to reconnect after a timeout.
+
+- An external program can be called if ldap2dns detects a
+  modification in the database.
+
+Version 0.2.0
+- New schema, unfortunately not compatible with old one, but
+  now its unambigous.
+
+- Mapping for reverse lookup works fine.
+
+- ldap2dns now can be started by daemontools.
+
+- Fixed a bug for DNSrrset's with type=TXT
+
+- Much better naming scheme for dn's when using
+  import.pl
+
+- RPM support
+

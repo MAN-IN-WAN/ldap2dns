@@ -1,0 +1,21 @@
+#!/bin/bash
+cd /var/named/chroot/var/named/
+chown named.named /var/named/chroot/var/named/
+logger "Updating DNS from ldap..."
+/usr/bin/sudo -u named /usr/local/bin/ldap2dns -D "cn=readonly.abtel.fr,dc=abtel,dc=fr" -w 21wyisey -b "ou=domains,dc=abtel,dc=fr" -o bind -h ldap2.abtel.fr
+#modify the named.zones file, as named doesn't like the comment!
+cat named.zones | grep -v "^; Auto" > named.zones.corrected
+logger "Updated DNS from ldap"
+cat named.zones | sed 's/file "/file "internal\./' > named.internal.zones
+#suppression des zones internal
+for i in $(find /var/named/chroot/var/named -name "internal.*.db")
+do
+    rm $i -f
+done
+#génération des fichiers internal
+for i in $(find /var/named/chroot/var/named -name "*.db")
+do
+    cat $i | sed 's/178.32.130.22/192.168.150.50/' | sed 's/178.32.130.20/192.168.120.50/'| sed 's/178.32.130.18/192.168.130.50/' | sed 's/178.32.130.24/192.168.120.52/'| sed 's/178.32.130.21/192.168.120.51/' > /var/named/chroot/var/named/internal.$(basename $i)
+done
+/bin/systemctl reload named-chroot.service
+chown named:named /var/named/chroot/var/named/*

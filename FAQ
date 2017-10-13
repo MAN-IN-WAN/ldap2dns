@@ -1,0 +1,24 @@
+1) My build bails out with nearly three screens full of error messages!
+
+If the first two lines of that error output look like:
+
+ldap2dns.c:9:18: error: lber.h: No such file or directory
+ldap2dns.c:10:18: error: ldap.h: No such file or directory
+
+then you need to make the include files available to the compiler.  Usually that
+means that the openldap-devel (openldap2-devel for SuSE) package needs to be
+installed.  If you're running on Solaris or have installed OpenLDAP into a
+non-standard location then you'll need to modify the Makefile to pass the path
+to those header files to the compiler.
+
+2) Where can I find a web interface?
+
+The official web interface of ldap2dns is "Beatnik."  Beatnik is a module for
+the Horde framework (http://www.horde.org).  Beatnik is actively developed and
+can be considered beta status.  Early adopters are encouraged to checkout
+the code from Horde Git repository.
+The author uses Beatnik in production today.
+
+See http://www.horde.org for more information.
+
+# $Id$

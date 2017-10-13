@@ -1,0 +1,46 @@
+#!/bin/sh
+# $Id$
+LDAP2DNSUSER=$1
+LDAP2DNSLOGUSER=$2
+LDAP2DNSDIR=$3
+TINYDNSDIR=$4
+
+if [ -z "$LDAP2DNSUSER" -o -z "$LDAP2DNSLOGUSER" -o -z "$LDAP2DNSDIR" -o \
+     -z "$TINYDNSDIR" ]; then
+    echo "usage: $0 acct logacct /path/to/ldap2dns/dir /path/to/tinydns/root" >&2
+    exit 1
+fi
+
+set -e # Err out immediately if any of the following fails
+
+mkdir $LDAP2DNSDIR
+mkdir $LDAP2DNSDIR/env
+mkdir $LDAP2DNSDIR/log
+mkdir $LDAP2DNSDIR/log/main
+touch $LDAP2DNSDIR/log/status
+
+cat << EOF_run > $LDAP2DNSDIR/run
+#!/bin/sh
+exec 2>&1
+exec setuidgid $LDAP2DNSUSER envdir ./env softlimit -d250000 /usr/bin/ldap2dns -e "cd \$TINYDNSDIR && tinydns-data"
+EOF_run
+
+chmod +t $LDAP2DNSDIR
+chmod 755 $LDAP2DNSDIR/run
+echo "$TINYDNSDIR" > $LDAP2DNSDIR/env/TINYDNSDIR
+echo "60" > $LDAP2DNSDIR/env/LDAP2DNS_UPDATE
+echo "data" > $LDAP2DNSDIR/env/LDAP2DNS_OUTPUT
+
+cat << EOF_logrun > $LDAP2DNSDIR/log/run
+#!/bin/sh
+exec setuidgid $LDAP2DNSLOGUSER multilog t ./main
+EOF_logrun
+
+chown $LDAP2DNSLOGUSER:$LDAP2DNSLOGUSER $LDAP2DNSDIR/log/main
+chmod g+s $LDAP2DNSDIR/log/main
+chmod 755 $LDAP2DNSDIR/log/run
+chown $LDAP2DNSLOGUSER:$LDAP2DNSLOGUSER $LDAP2DNSDIR/log/status
+
+echo "To supervise ldap2dns do a symbolic link from /service onto ldap2dns"
+echo "For proper operation, ensure $LDAP2DNSUSER has write access to $TINYDNSDIR"
+

@@ -1,0 +1,14 @@
+# $Id$
+* Document scripts/* functionality (2005/12/08 bklang)
+
+* Modify scripts/data2ldif.pl to merge multiple A records for a single
+  host in data file into single object in LDAP (2005/12/08 bklang)
+
+* Print warning if running as root (2006/06/08 bklang)
+
+--- Old TODOs from Jacob ---
+Version ?.?.?
++ Make ldap2dns behave like a secondary nameserver by storing
+  the serial number, expire, refresh, retry and minimum values
+  in a record.
+

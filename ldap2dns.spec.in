@@ -1,0 +1,87 @@
+#
+# spec file for package ldap2dns
+#
+# Copyright (c) 2005 Ben Klang, Alkaloid Networks
+# This file and all modifications and additions to the pristine
+# package are under the same license as the package itself.
+#
+# Please submit bugfixes or comments via http://projects.alkaloid.net
+#
+# $Id$
+#
+
+# norootforbuild
+# neededforbuild  %OPENLDAPPKG%-devel
+BuildRequires: %OPENLDAPPKG%-devel
+
+Summary:	LDAP to DNS gateway
+Packager:	Ben Klang <ben@alkaloid.net>
+Vendor:		Alkaloid Networks
+Name:		ldap2dns
+Version:	%VERSION%
+Release:	%RELEASE%
+License:	GPL
+Group:		%RPMGROUP%
+Source:		ldap2dns-%{version}.tar.gz
+BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+Autoreqprov:	 on
+
+%description
+ldap2dns is a program to read DNS (Domain Name Service) records from an LDAP
+directory and format them into flat files suitable for TinyDNS (or Bind).
+
+ldap2dns reduces all kind of administration overhead: No more flat file editing,
+no more zone file editing. After having installed ldap2dns, the administrator
+only has to modify the data stored in the LDAP directory.
+
+Optionally access control can be configured for each zone, GUIs can be more
+easily implemented, and add all other kind of zone and resource record
+information can be managed without interfering with the DNS server.
+
+# RedHat defaults to building the debug_package while SuSE does not
+# If we detect SuSE then build the debug_package
+%if 0%{?suse_version}
+%debug_package
+%endif
+
+%prep
+%setup
+
+%build
+make VERSION=%{version} RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
+
+%install
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+make INSTALL_PREFIX=$RPM_BUILD_ROOT install
+
+%clean
+[ -n "%{buildroot}" -a "%{buildroot}" != / ] && rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root)
+/usr/bin/ldap2dns
+/usr/bin/ldap2dnsd
+/usr/bin/ldap2tinydns-conf
+%doc doc/README.html 
+%doc doc/example.ldif
+%doc scripts/axfr2ldap.pl
+%doc scripts/data2ldif.pl
+%config /etc/openldap/schema/ldap2dns.schema
+%MANDIR%/man1/ldap2dns.1.gz
+
+%pre
+/usr/sbin/groupadd -g 161 -r ldap2dns >/dev/null 2>/dev/null || :
+/usr/sbin/groupadd -g 162 -r l2dnslog >/dev/null 2>/dev/null || :
+/usr/sbin/useradd -r -o -g ldap2dns -u 161 -c "LDAP2DNS Daemon" \
+                  -s /bin/false -d /nonexistant ldap2dns 2> /dev/null || :
+
+/usr/sbin/useradd -r -o -g l2dnslog -u 162 -c "LDAP2DNS Logging Daemon" \
+                  -s /bin/false -d /nonexistant l2dnslog 2> /dev/null || :
+
+%changelog
+* Wed Dec 07 2005 Ben Klang <ben@alkaloid.net>
+- Added user and group creation
+* Sun Dec 04 2005 Ben Klang <ben@alkaloid.net>
+- Updated Specfile to version 0.3.6
+* Wed Dec 06 2000 Jacob Rief <jacob.rief@tiscover.com>
+- initial revision for version 0.2.0
