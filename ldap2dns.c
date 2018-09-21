@@ -9,12 +9,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to:
  * Free Software Foundation, Inc.
@@ -43,8 +43,8 @@
 #define DEF_RECLIMIT LDAP_NO_LIMIT
 #define MAX_DOMAIN_LEN 256
 
-static char tinydns_textfile[256];
-static char tinydns_texttemp[256];
+static char tinydns_textfile[2048];
+static char tinydns_texttemp[2048];
 static LDAP* ldap_con;
 static FILE* namedmaster;
 static FILE* namedzone;
@@ -119,7 +119,7 @@ struct resourcerecord
 	int srvpriority;
 	int srvweight;
 	int srvport;
-	char txt[256];
+	char txt[4096];
 };
 
 
@@ -380,7 +380,7 @@ static int parse_options()
 		strncpy(options.exec_command, ev, sizeof(options.exec_command));
 		options.exec_command[ sizeof( options.exec_command ) -1 ] = '\0';
 	}
-	
+
 	/* Finally, parse command-line options */
 	while (1) {
 		int this_option_optind = optind ? optind : 1;
@@ -943,7 +943,7 @@ static void write_zone(void)
 		fprintf(namedzone, (zone.zonemaster[len-1]=='.') ? "%s " : "%s. ", zone.zonemaster);
 		len = strlen(zone.adminmailbox);
 		fprintf(namedzone, (zone.adminmailbox[len-1]=='.') ? "%s " : "%s. ", zone.adminmailbox);
-		fprintf(namedzone, "(\n\t%s\t; Serial\n\t%s\t; Refresh\n\t%s\t; Retry\n\t%s\t; Expire\n\t%s )\t; Minimum\n", zone.serial, zone.refresh, zone.retry, zone.expire, zone.minimum); 
+		fprintf(namedzone, "(\n\t%s\t; Serial\n\t%s\t; Refresh\n\t%s\t; Retry\n\t%s\t; Expire\n\t%s )\t; Minimum\n", zone.serial, zone.refresh, zone.retry, zone.expire, zone.minimum);
 	}
 	if (options.ldifname[0])
 		fprintf(ldifout, "\n");
@@ -964,7 +964,7 @@ static void calc_checksum(int* num, int* sum)
 		fprintf(stderr, "\n[**] Warning: No records returned from search.  Check for correct credentials,\n[**] LDAP hostname, and search base DN.\n\n");
 		return;
 	}
-		
+
 	for (m = ldap_first_entry(ldap_con, res); m; m = ldap_next_entry(ldap_con, m)) {
 		BerElement* ber = NULL;
 		char* attr = ldap_first_attribute(ldap_con, m, &ber);
@@ -975,7 +975,7 @@ static void calc_checksum(int* num, int* sum)
 				if (sscanf(bvals[0]->bv_val, "%u", &tmp)==1) {
 					(*num)++;
 					*sum += tmp;
-				}	
+				}
 				ldap_value_free_len(bvals);
 			}
 		}
@@ -1324,7 +1324,7 @@ int main(int argc, char** argv)
 	for (;;) {
 		int ldaperr = -1;
 
-			
+
 		res = do_connect();
 		if (res != LDAP_SUCCESS || ldap_con == NULL) {
 			fprintf(stderr, "Warning - Problem while connecting to LDAP server:\n\t%s\n", ldap_err2string(res));
@@ -1379,4 +1379,3 @@ int main(int argc, char** argv)
 	}
 	return 0;
 }
-
