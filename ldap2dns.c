@@ -106,7 +106,7 @@ struct resourcerecord
 	char type[16];
 	char ipaddr[256][80];
 	char cipaddr[80];
-	char cname[64];
+	char cname[256];
 	char ttl[12];
 	char timestamp[20];
 	char preference[12];
